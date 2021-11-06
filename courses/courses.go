@@ -3,6 +3,7 @@ package courses
 import (
 	"ISA_DA5/teachers"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -43,6 +44,7 @@ func RegisterCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"status": "invalid input", "err": err.Error()})
 		return
 	}
+	fmt.Println(body)
 	if !(len(body.Name) > 0) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Course needs a name"})
 		return
@@ -56,7 +58,7 @@ func RegisterCourse(c *gin.Context) {
 	courses, _ := readCourses()
 	courses = append(courses, body)
 	writeCourse(courses)
-	c.JSON(http.StatusBadRequest, gin.H{"message": "successfully added"})
+	c.JSON(http.StatusOK, gin.H{"message": "successfully added"})
 }
 
 func GetCourse(c *gin.Context) {

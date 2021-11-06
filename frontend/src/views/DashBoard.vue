@@ -17,6 +17,7 @@
       <button type="button" class="btn btn-danger" @click="handleLogOut">
         Log Out
       </button>
+      <Register :user="name" v-if="isTeacher" />
       <ViewCourse :type="type" />
     </div>
   </div>
@@ -27,6 +28,7 @@ import axios from "axios";
 import { defineComponent } from "@vue/runtime-core";
 import router from "@/router";
 import ViewCourse from "../components/ViewCourse.vue";
+import RegisterCourseVue from "@/components/RegisterCourse.vue";
 
 export default defineComponent({
   name: "studentHomePage",
@@ -38,6 +40,7 @@ export default defineComponent({
   },
   components: {
     ViewCourse,
+    Register: RegisterCourseVue,
   },
   data() {
     return {
@@ -45,7 +48,7 @@ export default defineComponent({
       courseId: "" as string,
     };
   },
-  async beforeMount() {
+  async beforeMount(): Promise<void> {
     const result = await axios.get(`http://localhost:8000/${this.type}`, {
       withCredentials: true,
     });
@@ -64,6 +67,11 @@ export default defineComponent({
         }
       );
       if (result.status === 200) router.push("/");
+    },
+  },
+  computed: {
+    isTeacher(): boolean {
+      return this.type === "teacher" ? true : false;
     },
   },
 });
