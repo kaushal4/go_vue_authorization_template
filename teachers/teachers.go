@@ -1,11 +1,13 @@
 package teachers
 
 import (
+	"ISA_DA5/utilities"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -31,8 +33,9 @@ func RegisterTeacher(c *gin.Context) {
 }
 
 func TeacherLogin(c *gin.Context) {
-	var body map[string]string
-	if err := c.BindJSON(&body); err != nil {
+	var body map[string]string = make(map[string]string)
+	//body = c.Request.URL.Query()
+	if err := c.BindQuery(&body); err != nil {
 		c.JSON(401, gin.H{"status": "invalid input", "err": err.Error()})
 		return
 	}
@@ -55,7 +58,7 @@ func TeacherLogin(c *gin.Context) {
 		return
 	}
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    body["name"],
+		Issuer:    body["name"] + ":teacher",
 		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -68,17 +71,19 @@ func TeacherLogin(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("jwt", token, int(time.Hour)*24, "/teacher", "localhost", true, true)
+	c.SetCookie("jwt", token, int(time.Hour)*24, "/teacher", "", false, true)
 
-	c.JSON(200, gin.H{"token": token})
+	c.JSON(200, gin.H{"message": "success"})
 }
 
 func GetUser(c *gin.Context) {
-	c.JSON(http.StatusAccepted, gin.H{"message": "authenticated User Successfully"})
+	issuer := strings.Split(utilities.GetUserName(c), ":")[0]
+	c.JSON(http.StatusOK, gin.H{"message": "authenticated User Successfully", "user": issuer})
 }
 
 func AuthenticateTeacher() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		var cookie string
 		var er error
 		if cookie, er = c.Cookie("jwt"); er != nil {
@@ -86,7 +91,7 @@ func AuthenticateTeacher() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		_, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 			return []byte("secret"), nil
 		})
 		if err != nil {
@@ -94,9 +99,16 @@ func AuthenticateTeacher() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		issuer := token.Claims.(*jwt.StandardClaims).Issuer
+		splitIssuer := strings.Split(issuer, ":")
+		if splitIssuer[1] != "teacher" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "you are not a teacher"})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 	}
-
 }
 
 func ReadTeachers() ([]Teacher, error) {
@@ -106,4 +118,8 @@ func ReadTeachers() ([]Teacher, error) {
 		return nil, err
 	}
 	return datas, nil
+}
+func Logout(c *gin.Context) {
+	c.SetCookie("jwt", "", -1, "/teacher", "", false, true)
+	c.JSON(200, gin.H{"message": "successful"})
 }

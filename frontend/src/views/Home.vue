@@ -1,18 +1,23 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-  </div>
+  <HelloWorld />
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
-
-@Options({
+import HelloWorldVue from "@/components/HelloWorld.vue";
+import { defineComponent } from "@vue/runtime-core";
+export default defineComponent({
+  name: "home",
   components: {
-    HelloWorld,
+    HelloWorld: HelloWorldVue,
   },
-})
-export default class Home extends Vue {}
+});
 </script>
+
+<style>
+body {
+  min-height: 100vh;
+  background-color: #7f5a83;
+  background-image: linear-gradient(315deg, #7f5a83 0%, #0d324d 74%);
+  background-repeat: no-repeat;
+}
+</style>

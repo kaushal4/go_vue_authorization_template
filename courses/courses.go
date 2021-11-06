@@ -34,13 +34,13 @@ func readCourses() ([]Course, error) {
 
 func writeCourse(datas []Course) {
 	data, _ := json.MarshalIndent(datas, "", " ")
-	ioutil.WriteFile("./teachers/teacherDatabase.json", data, os.ModePerm)
+	ioutil.WriteFile("./courses/courseDatabase.json", data, os.ModePerm)
 }
 
 func RegisterCourse(c *gin.Context) {
 	var body Course
 	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		c.JSON(400, gin.H{"status": "invalid input", "err": err.Error()})
 		return
 	}
 	if !(len(body.Name) > 0) {
@@ -60,7 +60,7 @@ func RegisterCourse(c *gin.Context) {
 }
 
 func GetCourse(c *gin.Context) {
-	var params map[string]string
+	var params map[string]string = make(map[string]string)
 
 	if err := c.BindQuery(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
