@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row">
+    <div class="row my-3">
       <div class="col-6 text-center">
         <h5>Clink to register course</h5>
       </div>
@@ -46,8 +46,8 @@
           v-model="materials[index - 1]"
         ></textarea>
       </div>
-      <div class="text-center">
-        <button type="submit" class="btn btn-success">Sumbmit</button>
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-success">Submit</button>
       </div>
     </form>
   </div>
