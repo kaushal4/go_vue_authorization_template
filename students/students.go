@@ -69,7 +69,7 @@ func StudentLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "server error", "message": err.Error()})
 		return
 	}
-
+	c.SetCookie("jwt", "", -1, "/teacher", "", false, true)
 	c.SetCookie("jwt", token, 60*60*24, "/student", "", false, true)
 	//c.SetCookie("cookieName", "name", 10, "/", "", false, false)
 

@@ -70,7 +70,7 @@ func TeacherLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "server error", "message": err.Error()})
 		return
 	}
-
+	c.SetCookie("jwt", "", -1, "/student", "", false, true)
 	c.SetCookie("jwt", token, int(time.Hour)*24, "/teacher", "", false, true)
 
 	c.JSON(200, gin.H{"message": "success"})
@@ -87,23 +87,20 @@ func AuthenticateTeacher() gin.HandlerFunc {
 		var cookie string
 		var er error
 		if cookie, er = c.Cookie("jwt"); er != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": er.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": er.Error()})
 			return
 		}
 		token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 			return []byte("secret"), nil
 		})
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid token"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "invalid Token"})
 			return
 		}
 		issuer := token.Claims.(*jwt.StandardClaims).Issuer
 		splitIssuer := strings.Split(issuer, ":")
 		if splitIssuer[1] != "teacher" {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "you are not a teacher"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "you are not a teacher"})
 			return
 		}
 

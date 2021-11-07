@@ -18,7 +18,7 @@
         Log Out
       </button>
       <Register :user="name" v-if="isTeacher" />
-      <ViewCourse :type="type" />
+      <ViewCourse :type="type" :user="name" />
     </div>
   </div>
 </template>
@@ -49,13 +49,13 @@ export default defineComponent({
     };
   },
   async beforeMount(): Promise<void> {
-    const result = await axios.get(`http://localhost:8000/${this.type}`, {
-      withCredentials: true,
-    });
-    if (result.status != 200) {
-      router.push(`/${this.type}/login`);
-    } else {
+    try {
+      const result = await axios.get(`http://localhost:8000/${this.type}`, {
+        withCredentials: true,
+      });
       this.name = result.data.user;
+    } catch (err) {
+      router.push(`/login/teacher`);
     }
   },
   methods: {

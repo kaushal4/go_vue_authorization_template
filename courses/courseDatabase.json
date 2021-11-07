@@ -2,8 +2,16 @@
  {
   "name": "example",
   "material": [
-   "example material",
+   "Heloo World!",
    "example material 2"
+  ],
+  "teacher": "Kaushal"
+ },
+ {
+  "name": "course on bio",
+  "material": [
+   "animals are awesome",
+   "animals are super awesome"
   ],
   "teacher": "Kaushal"
  }

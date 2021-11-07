@@ -102,14 +102,18 @@ func checkTeacher(c *gin.Context, name string) bool {
 	if err != nil {
 		return false
 	}
-	claims := token.Claims.(jwt.MapClaims)
-	return claims.VerifyIssuer(name, true)
+	claims := token.Claims.(*jwt.StandardClaims)
+	return claims.VerifyIssuer(name+":teacher", true)
 
 }
 
 func EditCourse(c *gin.Context) {
+
 	var body map[string]string
-	c.BindJSON(&body)
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 	var course Course
 	courses, _ := readCourses()
 	var index int = -1
@@ -120,7 +124,7 @@ func EditCourse(c *gin.Context) {
 			break
 		}
 	}
-	if !(index != -1) {
+	if index == -1 {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "No such course"})
 		return
 	}
@@ -134,8 +138,7 @@ func EditCourse(c *gin.Context) {
 		return
 	}
 	courses[index].Material[index] = body["material"]
-
 	writeCourse(courses)
-	c.JSON(http.StatusAccepted, gin.H{"message": "material updated"})
+	c.JSON(200, gin.H{"message": "material updated"})
 
 }
