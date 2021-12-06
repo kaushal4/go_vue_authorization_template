@@ -3,6 +3,7 @@ package courses
 import (
 	"ISA_DA5/teachers"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -137,8 +138,93 @@ func EditCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invlaid material"})
 		return
 	}
-	courses[index].Material[index] = body["material"]
+	courses[index].Material[length] = body["material"]
 	writeCourse(courses)
 	c.JSON(200, gin.H{"message": "material updated"})
 
+}
+
+func handleError(err error, c *gin.Context) {
+	if err != nil {
+		println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	}
+}
+
+func AddFile(c *gin.Context) {
+	err := c.Request.ParseMultipartForm(32 << 20)
+	var body map[string]string = make(map[string]string)
+	for key, value := range c.Request.PostForm {
+		body[key] = value[0]
+		fmt.Println(key, value)
+	}
+	var course Course
+	courses, _ := readCourses()
+	var index int = -1
+	for i, element := range courses {
+		if element.Name == body["name"] {
+			course = element
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "No such course"})
+		return
+	}
+	if !checkTeacher(c, course.Teacher) {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Not Authorised"})
+		return
+	}
+
+	handleError(err, c)
+	if err != nil {
+		return
+	}
+	file, header, err := c.Request.FormFile("file")
+	handleError(err, c)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	fmt.Printf("Uploaded File: %+v\n", header.Filename)
+	fmt.Printf("File Size: %+v\n", header.Size)
+	fmt.Printf("MIME Header: %+v\n", header.Header)
+	tempFile, err := ioutil.TempFile("courses\\uploadedFiles", "upload-*.pdf")
+	handleError(err, c)
+	if err != nil {
+		return
+	}
+	defer tempFile.Close()
+	fileBytes, err := ioutil.ReadAll(file)
+	handleError(err, c)
+	if err != nil {
+		return
+	}
+	// write this byte array to our temporary file
+	tempFile.Write(fileBytes)
+
+	course.Files = append(course.Files, tempFile.Name())
+
+	courses[index] = course
+
+	writeCourse(courses)
+	// return that we have successfully uploaded our file!
+	c.JSON(http.StatusAccepted, gin.H{"message": "Uploaded Successfully"})
+}
+
+func DownloadFile(c *gin.Context) {
+	var body map[string]string
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if _, err := os.Stat(body["path"]); errors.Is(err, os.ErrNotExist) {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "File does not exits"})
+		return
+	}
+	name := body["path"][14:]
+	//c.Header("Content-Disposition", "attachment; filename="+name)
+	//c.Header("Content-Type", "application/octet-stream")
+	c.FileAttachment(body["path"], name)
 }

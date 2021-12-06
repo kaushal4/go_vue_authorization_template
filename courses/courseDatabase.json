@@ -2,10 +2,11 @@
  {
   "name": "example",
   "material": [
-   "editing this course",
+   "editing this material",
    "example material 2"
   ],
-  "teacher": "Kaushal"
+  "teacher": "Kaushal",
+  "file": null
  },
  {
   "name": "course on bio",
@@ -13,6 +14,25 @@
    "animals are awesome",
    "animals are super awesome"
   ],
-  "teacher": "Kaushal"
+  "teacher": "Kaushal",
+  "file": null
+ },
+ {
+  "name": "Physics101",
+  "material": [
+   "editing this material"
+  ],
+  "teacher": "Kaushal",
+  "file": [
+   "courses\\uploadedFiles\\upload-76308105.pdf"
+  ]
+ },
+ {
+  "name": "Physics101",
+  "material": [
+   "Physics is awesome"
+  ],
+  "teacher": "Kaushal",
+  "file": null
  }
 ]

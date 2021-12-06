@@ -44,6 +44,8 @@ func main() {
 	router.GET("/teacher/course", teachers.AuthenticateTeacher(), courses.GetCourse)
 	router.POST("/teacher/course", teachers.AuthenticateTeacher(), courses.RegisterCourse)
 	router.PATCH("/teacher/course", teachers.AuthenticateTeacher(), courses.EditCourse)
+	router.POST("/teacher/course/addFile", teachers.AuthenticateTeacher(), courses.AddFile)
+	router.GET("/file", courses.DownloadFile)
 	router.GET("/", hello)
 	router.Run("localhost:8000")
 	fmt.Println("Server Started!!")

@@ -27,3 +27,5 @@ students/studentDatabase.json
 teachers/teacherDatabase.json
 
 courses/courseDatabase.json
+
+courses/uploadedFiles
