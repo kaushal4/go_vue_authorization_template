@@ -25,6 +25,8 @@
         <div class="linkContainers">
           <router-link to="/login/student">Student Login</router-link>
           <router-link to="/login/teacher">Teacher Login</router-link>
+          <router-link to="/login/student">Student Register</router-link>
+          <router-link to="/login/teacher">Teacher Register</router-link>
         </div>
       </div>
     </div>

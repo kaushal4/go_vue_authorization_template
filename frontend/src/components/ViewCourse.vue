@@ -35,10 +35,10 @@
             aria-labelledby="offcanvasTopLabel"
           >
             <div class="offcanvas-header">
-              <h5 id="offcanvasTopLabel">Offcanvas top</h5>
+              <h5 id="offcanvasTopLabel">Edit material</h5>
               <button
                 type="button"
-                class="btn-close text-reset"
+                class="btn-close text-reset mt-1"
                 data-bs-dismiss="offcanvas"
                 aria-label="Close"
                 id="tempSolution"
@@ -54,12 +54,35 @@
                     v-model="editMaterial"
                   ></textarea>
                 </div>
-                <button class="btn btn-warning">Edit</button>
+                <button class="btn btn-warning mt-1">Edit</button>
               </form>
             </div>
           </div>
         </li>
       </ul>
+      <ul class="list-group">
+        <li
+          v-for="(file, index) in pathName"
+          :key="index"
+          class="list-group-item"
+        >
+          {{ file }}
+          <button
+            class="float-end btn btn-warning"
+            type="button"
+            @click="handleDownload(index)"
+          >
+            <img
+              src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"
+            />
+          </button>
+        </li>
+      </ul>
+      <Addfile
+        v-if="shouldEdit"
+        :courseName="searchedCourse.name"
+        :updateCourse="handleSearch"
+      />
     </div>
   </div>
 </template>
@@ -67,11 +90,12 @@
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
 import axios from "axios";
-import { onMounted, ref } from "vue";
+import Addfile from "./AddFile.vue";
 interface course {
   name: string;
   material: string[];
   teacher: string;
+  files: string[] | null;
 }
 
 export default defineComponent({
@@ -85,7 +109,9 @@ export default defineComponent({
       required: true,
     },
   },
-
+  components: {
+    Addfile,
+  },
   data() {
     return {
       searchedCourse: {} as course,
@@ -105,6 +131,15 @@ export default defineComponent({
       if (this.searchedCourse.teacher == this.user && this.type === "teacher")
         return true;
       else return false;
+    },
+    pathName(): string[] | null {
+      return (
+        this.searchedCourse.files &&
+        this.searchedCourse.files.map((element): string => {
+          debugger;
+          return element.substr(element.lastIndexOf("\\") + 1);
+        })
+      );
     },
   },
   methods: {
@@ -141,7 +176,25 @@ export default defineComponent({
           },
         }
       );
+      debugger;
       this.searchedCourse = result.data;
+    },
+    async handleDownload(index: number): Promise<void> {
+      if (this.searchedCourse.files) {
+        const response = await axios.get(`http://localhost:8000/file`, {
+          withCredentials: true,
+          responseType: "blob",
+          params: {
+            path: this.searchedCourse.files[index],
+          },
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "file.pdf"); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+      }
     },
   },
 });

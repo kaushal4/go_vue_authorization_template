@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -190,7 +191,7 @@ func AddFile(c *gin.Context) {
 	fmt.Printf("Uploaded File: %+v\n", header.Filename)
 	fmt.Printf("File Size: %+v\n", header.Size)
 	fmt.Printf("MIME Header: %+v\n", header.Header)
-	tempFile, err := ioutil.TempFile("courses\\uploadedFiles", "upload-*.pdf")
+	tempFile, err := ioutil.TempFile("courses\\uploadedFiles", header.Filename[:strings.Index(header.Filename, ".")]+"-*.pdf")
 	handleError(err, c)
 	if err != nil {
 		return
@@ -210,12 +211,12 @@ func AddFile(c *gin.Context) {
 
 	writeCourse(courses)
 	// return that we have successfully uploaded our file!
-	c.JSON(http.StatusAccepted, gin.H{"message": "Uploaded Successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Uploaded Successfully"})
 }
 
 func DownloadFile(c *gin.Context) {
-	var body map[string]string
-	if err := c.BindJSON(&body); err != nil {
+	var body map[string]string = make(map[string]string)
+	if err := c.BindQuery(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
@@ -223,8 +224,9 @@ func DownloadFile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "File does not exits"})
 		return
 	}
-	name := body["path"][14:]
+	name := body["path"][24:]
 	//c.Header("Content-Disposition", "attachment; filename="+name)
-	//c.Header("Content-Type", "application/octet-stream")
+	//c.Header("Content-Type", "application/pdf")
+	//c.File(body["path"])
 	c.FileAttachment(body["path"], name)
 }

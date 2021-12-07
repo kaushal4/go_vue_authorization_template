@@ -6,7 +6,7 @@
    "example material 2"
   ],
   "teacher": "Kaushal",
-  "file": null
+  "files": null
  },
  {
   "name": "course on bio",
@@ -15,16 +15,16 @@
    "animals are super awesome"
   ],
   "teacher": "Kaushal",
-  "file": null
+  "files": null
  },
  {
   "name": "Physics101",
   "material": [
-   "editing this material"
+   "Amutha Prabhakar is Awesome\n"
   ],
   "teacher": "Kaushal",
-  "file": [
-   "courses\\uploadedFiles\\upload-76308105.pdf"
+  "files": [
+   "courses\\uploadedFiles\\ISADA2-3664052130.pdf"
   ]
  },
  {
@@ -33,6 +33,6 @@
    "Physics is awesome"
   ],
   "teacher": "Kaushal",
-  "file": null
+  "files": null
  }
 ]
